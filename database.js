@@ -5,7 +5,10 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
-  }
+  },
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 });
 
 async function initDatabase() {
@@ -63,6 +66,21 @@ async function initDatabase() {
         reported_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `);
+
+    // Create indexes for performance
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_messages_sender ON messages(sender_id);
+      CREATE INDEX IF NOT EXISTS idx_messages_receiver ON messages(receiver_id);
+      CREATE INDEX IF NOT EXISTS idx_messages_faculty ON messages(faculty);
+      CREATE INDEX IF NOT EXISTS idx_messages_created ON messages(created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+      CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
+      CREATE INDEX IF NOT EXISTS idx_users_faculty ON users(faculty);
+      CREATE INDEX IF NOT EXISTS idx_users_active ON users(is_active);
+      CREATE INDEX IF NOT EXISTS idx_blocks_blocker ON blocks(blocker_id);
+      CREATE INDEX IF NOT EXISTS idx_blocks_blocked ON blocks(blocked_id);
+      CREATE INDEX IF NOT EXISTS idx_reports_reported ON reports(reported_id);
     `);
 
     // Admin settings table

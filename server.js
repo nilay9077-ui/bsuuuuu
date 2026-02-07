@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const { pool, initDatabase } = require('./database');
@@ -26,11 +27,17 @@ app.use(cookieParser());
 app.use(express.static('public'));
 
 app.use(session({
+  store: new pgSession({
+    pool: pool,
+    tableName: 'session',
+    createTableIfMissing: true
+  }),
   secret: process.env.SESSION_SECRET || 'bsu_secret_key',
   resave: false,
   saveUninitialized: false,
   cookie: { 
     secure: false,
+    httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
@@ -144,7 +151,15 @@ app.post('/api/register', async (req, res) => {
     );
 
     req.session.userId = result.rows[0].id;
-    res.json({ success: true });
+    
+    // Save session explicitly
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Session xətası' });
+      }
+      res.json({ success: true });
+    });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ error: 'Qeydiyyat zamanı xəta baş verdi' });
@@ -173,7 +188,15 @@ app.post('/api/login', async (req, res) => {
     }
 
     req.session.userId = user.id;
-    res.json({ success: true });
+    
+    // Save session explicitly
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Session xətası' });
+      }
+      res.json({ success: true });
+    });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Giriş zamanı xəta baş verdi' });
@@ -203,7 +226,15 @@ app.post('/api/admin/login', async (req, res) => {
 
     req.session.adminId = admin.id;
     req.session.isSuper = admin.is_super;
-    res.json({ success: true, isSuper: admin.is_super });
+    
+    // Save session explicitly
+    req.session.save((err) => {
+      if (err) {
+        console.error('Admin session save error:', err);
+        return res.status(500).json({ error: 'Session xətası' });
+      }
+      res.json({ success: true, isSuper: admin.is_super });
+    });
   } catch (error) {
     console.error('Admin login error:', error);
     res.status(500).json({ error: 'Giriş zamanı xəta baş verdi' });
@@ -491,6 +522,25 @@ app.get('/api/settings/public', async (req, res) => {
 // Socket.IO connection handling
 const connectedUsers = new Map(); // userId -> socket.id
 
+// Cache for filter words to avoid repeated DB queries
+let filterWordsCache = '';
+let filterWordsCacheTime = 0;
+const FILTER_CACHE_DURATION = 60000; // 1 minute
+
+async function getFilterWords() {
+  const now = Date.now();
+  if (filterWordsCache && (now - filterWordsCacheTime < FILTER_CACHE_DURATION)) {
+    return filterWordsCache;
+  }
+  
+  const result = await pool.query("SELECT value FROM admin_settings WHERE key = 'filter_words'");
+  if (result.rows.length > 0) {
+    filterWordsCache = result.rows[0].value || '';
+    filterWordsCacheTime = now;
+  }
+  return filterWordsCache;
+}
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
@@ -498,11 +548,15 @@ io.on('connection', (socket) => {
     connectedUsers.set(userId, socket.id);
     socket.userId = userId;
 
-    // Get user's faculty
-    const result = await pool.query('SELECT faculty FROM users WHERE id = $1', [userId]);
-    if (result.rows.length > 0) {
-      socket.faculty = result.rows[0].faculty;
-      socket.join(socket.faculty); // Join faculty room
+    try {
+      // Get user's faculty with connection pooling
+      const result = await pool.query('SELECT faculty FROM users WHERE id = $1', [userId]);
+      if (result.rows.length > 0) {
+        socket.faculty = result.rows[0].faculty;
+        socket.join(socket.faculty); // Join faculty room
+      }
+    } catch (error) {
+      console.error('User connected error:', error);
     }
   });
 
@@ -515,17 +569,26 @@ io.on('connection', (socket) => {
     try {
       const { receiverId, message, faculty, isPrivate } = data;
       
-      // Get filter words
-      const settingsResult = await pool.query(
-        "SELECT value FROM admin_settings WHERE key = 'filter_words'"
-      );
+      // Validate message
+      if (!message || !message.trim()) {
+        return socket.emit('error', { message: 'Mesaj boş ola bilməz' });
+      }
+
+      if (message.length > 5000) {
+        return socket.emit('error', { message: 'Mesaj çox uzundur' });
+      }
+      
+      // Get filter words from cache
+      const filterWordsValue = await getFilterWords();
       
       let filteredMessage = message;
-      if (settingsResult.rows.length > 0 && settingsResult.rows[0].value) {
-        const filterWords = settingsResult.rows[0].value.split(',').map(w => w.trim()).filter(w => w);
+      if (filterWordsValue) {
+        const filterWords = filterWordsValue.split(',').map(w => w.trim()).filter(w => w);
         filterWords.forEach(word => {
-          const regex = new RegExp(word, 'gi');
-          filteredMessage = filteredMessage.replace(regex, '*'.repeat(word.length));
+          if (word) {
+            const regex = new RegExp(word, 'gi');
+            filteredMessage = filteredMessage.replace(regex, '*'.repeat(word.length));
+          }
         });
       }
 
@@ -570,12 +633,12 @@ io.on('connection', (socket) => {
 
   socket.on('get_messages', async (data) => {
     try {
-      const { faculty, receiverId, isPrivate } = data;
+      const { faculty, receiverId, isPrivate, limit = 100 } = data;
       
       let query, params;
       
       if (isPrivate) {
-        // Get private messages
+        // Get private messages with limit
         query = `
           SELECT m.id, m.message, m.created_at, m.is_private,
                  u.id as sender_id, u.full_name, u.faculty, u.degree, u.course, u.avatar
@@ -588,11 +651,12 @@ io.on('connection', (socket) => {
                 (blocker_id = $1 AND blocked_id = m.sender_id) OR 
                 (blocker_id = m.sender_id AND blocked_id = $1)
             )
-          ORDER BY m.created_at ASC
+          ORDER BY m.created_at DESC
+          LIMIT $3
         `;
-        params = [socket.userId, receiverId];
+        params = [socket.userId, receiverId, limit];
       } else {
-        // Get faculty messages
+        // Get faculty messages with limit
         query = `
           SELECT m.id, m.message, m.created_at, m.is_private,
                  u.id as sender_id, u.full_name, u.faculty, u.degree, u.course, u.avatar
@@ -602,14 +666,16 @@ io.on('connection', (socket) => {
             AND NOT EXISTS (
               SELECT 1 FROM blocks WHERE blocker_id = $2 AND blocked_id = m.sender_id
             )
-          ORDER BY m.created_at ASC
+          ORDER BY m.created_at DESC
+          LIMIT $3
         `;
-        params = [faculty, socket.userId];
+        params = [faculty, socket.userId, limit];
       }
 
       const result = await pool.query(query, params);
       
-      const messages = result.rows.map(row => ({
+      // Reverse to show oldest first
+      const messages = result.rows.reverse().map(row => ({
         id: row.id,
         sender: {
           id: row.sender_id,
