@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSU Chat - Giriş</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FF5A7E 0%, #9C27B0 50%, #673AB7 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FF5A7E, #9C27B0);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #9C27B0;
+        }
+
+        .phone-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .phone-prefix {
+            flex-shrink: 0;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .phone-number {
+            flex: 1;
+        }
+
+        .email-container {
+            position: relative;
+        }
+
+        .email-suffix {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            pointer-events: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF5A7E, #E91E63);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-link {
+            background: transparent;
+            color: #9C27B0;
+            text-decoration: underline;
+            padding: 10px;
+        }
+
+        .switch-mode {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .switch-mode a {
+            color: #9C27B0;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .switch-mode a:hover {
+            text-decoration: underline;
+        }
+
+        .verification-questions {
+            margin-top: 20px;
+        }
+
+        .question {
+            margin-bottom: 20px;
+        }
+
+        .question p {
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .option {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .option:hover {
+            border-color: #9C27B0;
+        }
+
+        .option.selected {
+            border-color: #9C27B0;
+            background: #f3e5f5;
+        }
+
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .avatar-option {
+            width: 100%;
+            aspect-ratio: 1;
+            border: 3px solid #ddd;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+
+        .avatar-option:hover {
+            border-color: #9C27B0;
+            transform: scale(1.05);
+        }
+
+        .avatar-option.selected {
+            border-color: #9C27B0;
+            box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.2);
+        }
+
+        .avatar-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .nav-buttons button {
+            flex: 1;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .avatar-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <div class="logo-icon">🎓</div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+            <h1>BSU Chat</h1>
+            <div id="loginError" class="error hidden"></div>
+
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" id="loginEmail" placeholder="e-mail@bsu.edu.az">
+            </div>
+
+            <div class="form-group">
+                <label>Şifrə</label>
+                <input type="password" id="loginPassword" placeholder="Şifrə">
+            </div>
+
+            <button class="btn-primary" onclick="login()">Giriş</button>
+            <button class="btn-link" onclick="showAdminLogin()">Admin Paneli</button>
+
+            <div class="switch-mode">
+                Hesabınız yoxdur? <a href="#" onclick="showRegister(); return false;">Qeydiyyat</a>
+            </div>
+        </div>
+
+        <!-- Registration Form - Step 1 -->
+        <div id="registerForm" class="hidden">
+            <h1>Qeydiyyat</h1>
+            <div id="registerError" class="error hidden"></div>
+
+            <div class="form-group">
+                <label>Ad Soyad</label>
+                <input type="text" id="fullName" placeholder="Ad Soyad">
+            </div>
+
+            <div class="form-group">
+                <label>Telefon</label>
+                <div class="phone-input">
+                    <div class="phone-prefix">+994</div>
+                    <input type="tel" id="phone" class="phone-number" placeholder="501234567" maxlength="9">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <div class="email-container">
+                    <input type="text" id="email" placeholder="istifadeci">
+                    <span class="email-suffix">@bsu.edu.az</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Fakültə</label>
+                <select id="faculty">
+                    <option value="">Seçin</option>
+                    <option value="Mexanika-riyaziyyat">Mexanika-riyaziyyat</option>
+                    <option value="Tətbiqi riyaziyyat və kibernetika">Tətbiqi riyaziyyat və kibernetika</option>
+                    <option value="Fizika">Fizika</option>
+                    <option value="Kimya">Kimya</option>
+                    <option value="Biologiya">Biologiya</option>
+                    <option value="Ekologiya və torpaqşünaslıq">Ekologiya və torpaqşünaslıq</option>
+                    <option value="Coğrafiya">Coğrafiya</option>
+                    <option value="Geologiya">Geologiya</option>
+                    <option value="Filologiya">Filologiya</option>
+                    <option value="Tarix">Tarix</option>
+                    <option value="Beynəlxalq münasibətlər və iqtisadiyyat">Beynəlxalq münasibətlər və iqtisadiyyat</option>
+                    <option value="Hüquq">Hüquq</option>
+                    <option value="Jurnalistika">Jurnalistika</option>
+                    <option value="İnformasiya və sənəd menecmenti">İnformasiya və sənəd menecmenti</option>
+                    <option value="Şərqşünaslıq">Şərqşünaslıq</option>
+                    <option value="Sosial elmlər və psixologiya">Sosial elmlər və psixologiya</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Dərəcə</label>
+                <select id="degree">
+                    <option value="">Seçin</option>
+                    <option value="Bakalavr">Bakalavr</option>
+                    <option value="Magistr">Magistr</option>
+                    <option value="Doktorantura">Doktorantura</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Kurs</label>
+                <select id="course">
+                    <option value="">Seçin</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Şifrə</label>
+                <input type="password" id="password" placeholder="Şifrə">
+            </div>
+
+            <div class="form-group">
+                <label>Şifrə Təkrar</label>
+                <input type="password" id="passwordConfirm" placeholder="Şifrə Təkrar">
+            </div>
+
+            <button class="btn-primary" onclick="showVerification()">Növbəti</button>
+            <button class="btn-secondary" onclick="showLogin()">Geri</button>
+        </div>
+
+        <!-- Registration Form - Step 2: Verification -->
+        <div id="verificationForm" class="hidden">
+            <h1>Doğrulama</h1>
+            <div id="verificationError" class="error hidden"></div>
+            <p style="margin-bottom: 20px; color: #666; font-size: 14px;">Minimum 2 sual doğru cavablanmalıdır:</p>
+
+            <div id="questionsContainer" class="verification-questions"></div>
+
+            <button class="btn-primary" onclick="showAvatarSelection()">Növbəti</button>
+            <button class="btn-secondary" onclick="backToRegister()">Geri</button>
+        </div>
+
+        <!-- Registration Form - Step 3: Avatar -->
+        <div id="avatarForm" class="hidden">
+            <h1>Avatar Seçin</h1>
+            <div id="avatarError" class="error hidden"></div>
+
+            <div class="avatar-grid" id="avatarGrid"></div>
+
+            <button class="btn-primary" onclick="register()">Qeydiyyatı Tamamla</button>
+            <button class="btn-secondary" onclick="backToVerification()">Geri</button>
+        </div>
+
+        <!-- Admin Login -->
+        <div id="adminLoginForm" class="hidden">
+            <h1>Admin Paneli</h1>
+            <div id="adminError" class="error hidden"></div>
+
+            <div class="form-group">
+                <label>İstifadəçi adı</label>
+                <input type="text" id="adminUsername" placeholder="İstifadəçi adı">
+            </div>
+
+            <div class="form-group">
+                <label>Şifrə</label>
+                <input type="password" id="adminPassword" placeholder="Şifrə">
+            </div>
+
+            <button class="btn-primary" onclick="adminLogin()">Giriş</button>
+            <button class="btn-secondary" onclick="showLogin()">Geri</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let verificationQuestions = [];
+        let selectedAnswers = {};
+        let selectedAvatar = 1;
+
+        // Avatar images (16 avatars)
+        const avatars = [
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=ffd966',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&backgroundColor=93c5fd',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Lucy&backgroundColor=86efac',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Max&backgroundColor=fbbf24',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Sophie&backgroundColor=c4b5fd',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver&backgroundColor=93c5fd',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Emma&backgroundColor=fda4af',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Leo&backgroundColor=fde68a',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Mia&backgroundColor=93c5fd',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Jack&backgroundColor=fda4af',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Lily&backgroundColor=86efac',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Noah&backgroundColor=fde68a',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Ava&backgroundColor=fda4af',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Ethan&backgroundColor=fbbf24',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Zoe&backgroundColor=fda4af',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Ben&backgroundColor=86efac'
+        ];
+
+        function showLogin() {
+            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+
+        function showRegister() {
+            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('registerForm').classList.remove('hidden');
+        }
+
+        function showAdminLogin() {
+            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('adminLoginForm').classList.remove('hidden');
+        }
+
+        async function showVerification() {
+            // Validate registration form
+            const fullName = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const faculty = document.getElementById('faculty').value;
+            const degree = document.getElementById('degree').value;
+            const course = document.getElementById('course').value;
+            const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('passwordConfirm').value;
+
+            if (!fullName || !phone || !email || !faculty || !degree || !course || !password || !passwordConfirm) {
+                showError('registerError', 'Bütün xanaları doldurun');
+                return;
+            }
+
+            if (phone.length !== 9) {
+                showError('registerError', 'Telefon nömrəsi 9 rəqəm olmalıdır');
+                return;
+            }
+
+            if (password !== passwordConfirm) {
+                showError('registerError', 'Şifrələr uyğun gəlmir');
+                return;
+            }
+
+            // Load verification questions
+            try {
+                const response = await fetch('/api/verification-questions');
+                verificationQuestions = await response.json();
+                
+                const container = document.getElementById('questionsContainer');
+                container.innerHTML = '';
+                selectedAnswers = {};
+
+                verificationQuestions.forEach((q, index) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.className = 'question';
+                    questionDiv.innerHTML = `
+                        <p>${index + 1}. ${q.question}</p>
+                        <div class="options" id="options-${index}">
+                            ${q.options.map(opt => `
+                                <div class="option" onclick="selectAnswer(${index}, '${opt}')">${opt}</div>
+                            `).join('')}
+                        </div>
+                    `;
+                    container.appendChild(questionDiv);
+                });
+
+                document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+                document.getElementById('verificationForm').classList.remove('hidden');
+            } catch (error) {
+                showError('registerError', 'Xəta baş verdi');
+            }
+        }
+
+        function selectAnswer(questionIndex, answer) {
+            selectedAnswers[questionIndex] = answer;
+            
+            // Update UI
+            const options = document.querySelectorAll(`#options-${questionIndex} .option`);
+            options.forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.textContent === answer) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+
+        function showAvatarSelection() {
+            // Validate answers
+            let correctCount = 0;
+            verificationQuestions.forEach((q, index) => {
+                if (selectedAnswers[index] === q.answer) {
+                    correctCount++;
+                }
+            });
+
+            if (correctCount < 2) {
+                showError('verificationError', 'Minimum 2 sual doğru cavablanmalıdır');
+                return;
+            }
+
+            // Show avatar selection
+            const grid = document.getElementById('avatarGrid');
+            grid.innerHTML = '';
+            
+            avatars.forEach((avatar, index) => {
+                const div = document.createElement('div');
+                div.className = 'avatar-option' + (index === 0 ? ' selected' : '');
+                div.innerHTML = `<img src="${avatar}" alt="Avatar ${index + 1}">`;
+                div.onclick = () => selectAvatar(index + 1);
+                grid.appendChild(div);
+            });
+
+            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('avatarForm').classList.remove('hidden');
+        }
+
+        function selectAvatar(avatarId) {
+            selectedAvatar = avatarId;
+            document.querySelectorAll('.avatar-option').forEach((opt, index) => {
+                opt.classList.toggle('selected', index + 1 === avatarId);
+            });
+        }
+
+        function backToRegister() {
+            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('registerForm').classList.remove('hidden');
+        }
+
+        function backToVerification() {
+            document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+            document.getElementById('verificationForm').classList.remove('hidden');
+        }
+
+        async function register() {
+            const fullName = document.getElementById('fullName').value.trim();
+            const phone = '+994' + document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim() + '@bsu.edu.az';
+            const faculty = document.getElementById('faculty').value;
+            const degree = document.getElementById('degree').value;
+            const course = document.getElementById('course').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullName, phone, email, faculty, degree, course, password,
+                        avatar: selectedAvatar,
+                        verificationAnswers: selectedAnswers
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    window.location.href = '/';
+                } else {
+                    showError('avatarError', data.error);
+                }
+            } catch (error) {
+                showError('avatarError', 'Xəta baş verdi');
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showError('loginError', 'Bütün xanaları doldurun');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    window.location.href = '/';
+                } else {
+                    showError('loginError', data.error);
+                }
+            } catch (error) {
+                showError('loginError', 'Xəta baş verdi');
+            }
+        }
+
+        async function adminLogin() {
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value;
+
+            if (!username || !password) {
+                showError('adminError', 'Bütün xanaları doldurun');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    window.location.href = '/admin';
+                } else {
+                    showError('adminError', data.error);
+                }
+            } catch (error) {
+                showError('adminError', 'Xəta baş verdi');
+            }
+        }
+
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            errorEl.textContent = message;
+            errorEl.classList.remove('hidden');
+            setTimeout(() => errorEl.classList.add('hidden'), 5000);
+        }
+    </script>
+</body>
+</html>

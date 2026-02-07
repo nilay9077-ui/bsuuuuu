@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSU Chat</title>
+    <link rel="stylesheet" href="/css/chat.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 BSU Chat</h2>
+                <button onclick="logout()" class="btn-icon">🚪</button>
+            </div>
+
+            <div class="topic-of-day" id="topicOfDay">
+                <strong>Günün Mövzusu:</strong>
+                <p>Yüklənir...</p>
+            </div>
+
+            <div class="user-info" id="userInfo">
+                <div class="avatar" id="userAvatar"></div>
+                <div class="user-details">
+                    <h3 id="userName">Yüklənir...</h3>
+                    <p id="userFaculty"></p>
+                </div>
+                <button onclick="showEditProfile()" class="btn-icon">✏️</button>
+            </div>
+
+            <div class="faculty-selector">
+                <h3>Fakültə</h3>
+                <div id="facultyButton" class="faculty-button" onclick="loadFacultyChat()"></div>
+            </div>
+
+            <div class="faculty-users">
+                <h3>İstifadəçilər</h3>
+                <div id="facultyUsersList"></div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button onclick="showRules()" class="btn-secondary">Qaydalar</button>
+                <button onclick="showAbout()" class="btn-secondary">Haqqında</button>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <h2 id="chatTitle">Fakültə Söhbəti</h2>
+            </div>
+
+            <div class="messages-container" id="messagesContainer"></div>
+
+            <div class="message-input">
+                <input type="text" id="messageInput" placeholder="Mesajınız..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()" class="btn-send">📤</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="userModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="avatar-large" id="modalAvatar"></div>
+                <h2 id="modalUserName"></h2>
+                <p id="modalUserInfo"></p>
+            </div>
+            <div class="modal-actions">
+                <button onclick="startPrivateChat()" class="btn-blue">💬 Şəxsi mesaj</button>
+                <button onclick="blockUser()" class="btn-orange">🚫 Blokla</button>
+                <button onclick="reportUser()" class="btn-red">⚠️ Şikayət et</button>
+                <button onclick="closeModal()" class="btn-gray">Bağla</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="infoModal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="infoModalTitle"></h2>
+            <div id="infoModalContent"></div>
+            <button onclick="closeInfoModal()" class="btn-primary">Bağla</button>
+        </div>
+    </div>
+
+    <div id="editProfileModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Profili Redaktə Et</h2>
+            <div id="editError" class="error hidden"></div>
+            <div class="form-group">
+                <label>Ad Soyad</label>
+                <input type="text" id="editFullName">
+            </div>
+            <div class="form-group">
+                <label>Fakültə</label>
+                <select id="editFaculty"></select>
+            </div>
+            <div class="form-group">
+                <label>Dərəcə</label>
+                <select id="editDegree">
+                    <option value="Bakalavr">Bakalavr</option>
+                    <option value="Magistr">Magistr</option>
+                    <option value="Doktorantura">Doktorantura</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Kurs</label>
+                <select id="editCourse">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                </select>
+            </div>
+            <div class="avatar-selector">
+                <label>Avatar</label>
+                <div class="avatar-grid-small" id="editAvatarGrid"></div>
+            </div>
+            <div class="modal-actions">
+                <button onclick="saveProfile()" class="btn-primary">Yadda saxla</button>
+                <button onclick="closeEditProfile()" class="btn-secondary">Ləğv et</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/chat.js"></script>
+</body>
+</html>
