@@ -67,13 +67,22 @@ BSU Chat, Bakı Dövlət Universitetinin 16 fakültəsinin tələbələri üçü
 
 ### Lokal İnkişaf
 
+**ÖNƏMLİ: Verilənlər Bazası Konfiqurasiyası**
+
+Layihə PostgreSQL (Render) istifadə edir. Layihəni işə salmadan əvvəl `.env` faylında `DATABASE_URL` dəyişənini yeniləməlisiniz:
+
+1. Render.com Dashboard-a daxil olun
+2. PostgreSQL database-in "Connection" bölməsinə keçin
+3. "External Database URL" və ya "Internal Database URL" kopyalayın
+4. `.env` faylında `DATABASE_URL` dəyərini yeniləyin
+
 ```bash
 # Asılılıqları quraşdır
 npm install
 
 # Environment dəyişənləri (.env faylı)
 PORT=3000
-DATABASE_URL=postgresql://...
+DATABASE_URL=postgresql://username:password@host:5432/database
 SESSION_SECRET=your_secret_key
 
 # Serveri işə sal
@@ -82,6 +91,13 @@ npm start
 # Development rejimi (nodemon)
 npm run dev
 ```
+
+**DATABASE_URL Format:**
+```
+postgresql://[username]:[password]@[host]:[port]/[database]?sslmode=require
+```
+
+Render PostgreSQL üçün SSL mütləqdir və kod tərəfindən avtomatik aktivləşdirilir.
 
 ### Render.com Deploy
 
